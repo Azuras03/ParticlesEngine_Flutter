@@ -57,18 +57,18 @@ class ParticleEngineState extends State<ParticleEngine> {
   }
 
   void addParticlesClick(PointerEvent details) {
+    Color color = Color.fromARGB(255, Random().nextInt(255),
+        Random().nextInt(255), Random().nextInt(255));
     for (int i = 0; i < 10; i++) {
-      addSingleParticle(details);
+      addSingleParticle(details, color);
     }
   }
 
-  void addSingleParticle(PointerEvent details) {
+  void addSingleParticle(PointerEvent details, Color color) {
     double x = details.position.dx;
     double y = details.position.dy;
     double speedX = Random().nextDouble() * 10 - 5;
     double speedY = Random().nextDouble() * 10 - 5;
-    Color color = Color.fromARGB(255, Random().nextInt(255),
-        Random().nextInt(255), Random().nextInt(255));
     setState(() {
       widget._particles.add(Particle(
           x,
@@ -93,6 +93,7 @@ class ParticleEngineState extends State<ParticleEngine> {
           addParticlesClick(details);
         },
         child: Scaffold(
+          backgroundColor: Colors.black,
           body: RepaintBoundary(
             child: Stack(
               children: [
