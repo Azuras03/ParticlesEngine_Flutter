@@ -1,33 +1,38 @@
 import 'dart:ui';
 
+import 'package:particlesengine/main.dart';
+
 class Particle {
 
   double x;
   double y;
-  double size;
+  late double size;
   double initialSpeedX;
   double initialSpeedY;
+  late double speedX = 0;
+  late double speedY = 0;
   Color color;
-  double speedX = 0;
-  double speedY = 0;
-  double time = 0;
+  bool good = true;
+  late double time;
 
-  double gravity = 0.1;
-  double friction = 0.99;
-
-  Particle(this.x, this.y, this.size,
+  Particle(this.x, this.y,
       this.initialSpeedX, this.initialSpeedY, this.color) {
+    size = ParticleEngine.size;
     speedX = initialSpeedX;
     speedY = initialSpeedY;
+    time = 0;
   }
 
   void update(double width, double height) {
     x += speedX;
     y += speedY;
-    speedY += gravity;
-    speedY *= friction;
-    speedX *= friction;
+    speedY += ParticleEngine.gravity;
+    speedY *= ParticleEngine.friction;
+    speedX *= ParticleEngine.friction;
     time += 0.01;
+    if (time > ParticleEngine.maxTime) {
+      good = false;
+    }
     bounce(width, height);
   }
 
