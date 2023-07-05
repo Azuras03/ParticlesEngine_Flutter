@@ -8,6 +8,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:particlesengine/model/Particle.dart';
 import 'package:particlesengine/vue/VueParticle.dart';
 
+import 'model/Explosion.dart';
+
 void main() {
   List<Particle> particles = [];
   runApp(ParticleEngine(particles));
@@ -15,14 +17,17 @@ void main() {
 
 class ParticleEngine extends StatefulWidget {
   final List<Particle> _particles;
+  final List<Explosion> _explosions = [];
   static const double gravity = 0.5;
   static const double friction = 0.99;
   static const double maxTime = 5;
-  static const double size = 10;
+  static const double particleSize = 10;
   static const int nbParticlesClick = 20;
   static const int nbParticlesDrag = 2;
+  static const double timeExplosion = 1;
+  static const double explosionSize = 100;
 
-  const ParticleEngine(this._particles, {super.key});
+  ParticleEngine(this._particles, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -47,7 +52,6 @@ class ParticleEngineState extends State<ParticleEngine>
   }
 
   void replay() {
-    print("replay");
     setState(() {
       widget._particles.clear();
     });
@@ -78,6 +82,7 @@ class ParticleEngineState extends State<ParticleEngine>
     if (!isPlaying) return;
     Color color = Color.fromARGB(255, Random().nextInt(255),
         Random().nextInt(255), Random().nextInt(255));
+    addSingleExplosion(details, color, ParticleEngine.explosionSize);
     for (int i = 0; i < ParticleEngine.nbParticlesClick; i++) {
       addSingleParticle(details, color);
     }
@@ -93,10 +98,19 @@ class ParticleEngineState extends State<ParticleEngine>
     });
   }
 
+  void addSingleExplosion(PointerEvent details, Color color, double explosionSize) {
+    double x = details.position.dx;
+    double y = details.position.dy;
+    setState(() {
+      widget._explosions.add(Explosion(x, y, explosionSize, color));
+    });
+  }
+
   void addParticlesDrag(PointerEvent details) {
     if (!isPlaying) return;
     Color color = Color.fromARGB(255, Random().nextInt(255),
-        Random().nextInt(255), Random().nextInt(255));
+        Random().nextInt(255), Random().nextInt(255)).withOpacity(0.5);
+    addSingleExplosion(details, color, ParticleEngine.explosionSize / 2);
     for (int i = 0; i < ParticleEngine.nbParticlesDrag; i++) {
       addSingleParticle(details, color);
     }
@@ -123,7 +137,7 @@ class ParticleEngineState extends State<ParticleEngine>
                         addParticlesDrag(details);
                       },
                       child: CustomPaint(
-                        painter: vueParticle = VueParticle(widget._particles),
+                        painter: vueParticle = VueParticle(widget._particles, widget._explosions),
                         child: Container(),
                       ),
                     ),

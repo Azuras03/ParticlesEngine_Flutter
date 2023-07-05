@@ -17,7 +17,7 @@ class Particle {
 
   Particle(this.x, this.y,
       this.initialSpeedX, this.initialSpeedY, this.color) {
-    size = ParticleEngine.size;
+    size = ParticleEngine.particleSize;
     speedX = initialSpeedX;
     speedY = initialSpeedY;
     time = 0;
