@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:particlesengine/main.dart';
+import 'package:particlesengine/vue/particleengine.dart';
 import 'package:particlesengine/model/Particle.dart';
 
 import '../model/Explosion.dart';

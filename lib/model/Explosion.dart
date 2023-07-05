@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:particlesengine/main.dart';
+import 'package:particlesengine/vue/particleengine.dart';
 
 class Explosion {
 
