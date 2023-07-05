@@ -21,7 +21,7 @@ class VueParticle extends CustomPainter {
           Rect.fromCenter(
               center: const Offset(0, 0),
               width: particle.size,
-              height: particle.size+particle.speedX.abs()/2),
+              height: particle.size+particle.speedX.abs()*2),
           Paint()..color = particle.color);
       canvas.restore();
     }
