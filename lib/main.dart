@@ -19,6 +19,8 @@ class ParticleEngine extends StatefulWidget {
   static const double friction = 0.99;
   static const double maxTime = 5;
   static const double size = 10;
+  static const int nbParticlesClick = 20;
+  static const int nbParticlesDrag = 2;
 
   const ParticleEngine(this._particles, {super.key});
 
@@ -76,7 +78,7 @@ class ParticleEngineState extends State<ParticleEngine>
     if (!isPlaying) return;
     Color color = Color.fromARGB(255, Random().nextInt(255),
         Random().nextInt(255), Random().nextInt(255));
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < ParticleEngine.nbParticlesClick; i++) {
       addSingleParticle(details, color);
     }
   }
@@ -95,7 +97,9 @@ class ParticleEngineState extends State<ParticleEngine>
     if (!isPlaying) return;
     Color color = Color.fromARGB(255, Random().nextInt(255),
         Random().nextInt(255), Random().nextInt(255));
-    addSingleParticle(details, color);
+    for (int i = 0; i < ParticleEngine.nbParticlesDrag; i++) {
+      addSingleParticle(details, color);
+    }
   }
 
   @override
