@@ -46,6 +46,12 @@ class ParticleEngineState extends State<ParticleEngine>
     _controller.forward();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void replay() {
     setState(() {
       widget._particles.clear();
@@ -155,6 +161,12 @@ class ParticleEngineState extends State<ParticleEngine>
                   ),
                 ),
               ]);
-            }));
+            }),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Icon(Icons.arrow_back),
+        ));
   }
 }
