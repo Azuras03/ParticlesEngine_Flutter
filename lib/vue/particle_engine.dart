@@ -147,7 +147,7 @@ class ParticleEngineState extends State<ParticleEngine>
                     icon: const Icon(Icons.settings),
                     color: Colors.white,
                     onPressed: () {
-                      Navigator.of(context).push(_createRoute());
+                      Navigator.of(context).push(_createRoute(const ParticleSettings()));
                     },
                   ),
                 ),
@@ -181,10 +181,10 @@ class ParticleEngineState extends State<ParticleEngine>
         ));
   }
 
-  Route _createRoute() {
+  Route _createRoute(partSettings) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          const ParticleSettings(),
+          partSettings,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         //ScaleTransition
         var begin = 0.0;

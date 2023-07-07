@@ -41,7 +41,7 @@ class _HomeState extends State<Home> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(_createRoute());
+                  Navigator.of(context).push(_createRoute(ParticleEngine()));
                 },
                 child: const Text('Start'))
           ],
@@ -51,9 +51,9 @@ class _HomeState extends State<Home> {
   }
 }
 
-Route _createRoute() {
+Route _createRoute(page) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => ParticleEngine(),
+    pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(0.0, 1.0);
       const end = Offset.zero;
