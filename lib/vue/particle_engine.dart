@@ -147,7 +147,7 @@ class ParticleEngineState extends State<ParticleEngine>
                     icon: const Icon(Icons.settings),
                     color: Colors.white,
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const ParticleSettings()));
+                      Navigator.of(context).push(_createRoute());
                     },
                   ),
                 ),
@@ -179,5 +179,26 @@ class ParticleEngineState extends State<ParticleEngine>
           },
           child: const Icon(Icons.arrow_back),
         ));
+  }
+
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const ParticleSettings(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        //ScaleTransition
+        var begin = 0.0;
+        var end = 1.0;
+        var tween = Tween(begin: begin, end: end);
+        var curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return ScaleTransition(
+          scale: tween.animate(curvedAnimation),
+          child: child,
+        );
+      },
+    );
   }
 }

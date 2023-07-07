@@ -71,7 +71,47 @@ class _ParticleSettingsState extends State<ParticleSettings> {
                 },
               ),
             ],
-          )
+          ),
+          Column(
+            children: [
+              const Text(
+                "Nombre de particules au clic",
+                style: TextStyle(fontSize: 20),
+              ),
+              Slider(
+                value: ParticleEngine.nbParticlesClick.toDouble(),
+                min: 0,
+                max: 100,
+                divisions: 100,
+                label: ParticleEngine.nbParticlesClick.toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    ParticleEngine.nbParticlesClick = value.toInt();
+                  });
+                },
+              ),
+            ],
+          ),
+          Column(
+            children: [
+              const Text(
+                "Nombre de particules au drag",
+                style: TextStyle(fontSize: 20),
+              ),
+              Slider(
+                value: ParticleEngine.nbParticlesDrag.toDouble(),
+                min: 0,
+                max: 10,
+                divisions: 10,
+                label: ParticleEngine.nbParticlesDrag.toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    ParticleEngine.nbParticlesDrag = value.toInt();
+                  });
+                },
+              ),
+            ],
+          ),
         ]),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.check),
