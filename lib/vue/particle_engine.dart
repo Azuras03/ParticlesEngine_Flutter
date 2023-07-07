@@ -5,22 +5,23 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:particlesengine/model/Particle.dart';
-import 'package:particlesengine/vue/VueParticle.dart';
+import 'package:particlesengine/model/particle.dart';
+import 'package:particlesengine/vue/particle_settings.dart';
+import 'package:particlesengine/vue/vue_particle.dart';
 
-import '../model/Explosion.dart';
+import '../model/explosion.dart';
 
 class ParticleEngine extends StatefulWidget {
   final List<Particle> _particles = [];
   final List<Explosion> _explosions = [];
-  static const double gravity = 0.5;
-  static const double friction = 0.99;
-  static const double maxTime = 5;
-  static const double particleSize = 10;
-  static const int nbParticlesClick = 20;
-  static const int nbParticlesDrag = 2;
-  static const double timeExplosion = 1;
-  static const double explosionSize = 100;
+  static double gravity = 0.5;
+  static double friction = 0.99;
+  static double maxTime = 5;
+  static double particleSize = 10;
+  static int nbParticlesClick = 20;
+  static int nbParticlesDrag = 2;
+  static double timeExplosion = 1;
+  static double explosionSize = 100;
 
   ParticleEngine({super.key});
 
@@ -143,23 +144,33 @@ class ParticleEngineState extends State<ParticleEngine>
                 Align(
                   alignment: Alignment.topRight,
                   child: IconButton(
-                    icon: icon,
+                    icon: const Icon(Icons.settings),
                     color: Colors.white,
                     onPressed: () {
-                      changeIcon();
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const ParticleSettings()));
                     },
                   ),
                 ),
                 Align(
-                  alignment: Alignment.topLeft,
-                  child: IconButton(
-                    icon: const Icon(Icons.replay),
-                    color: Colors.white,
-                    onPressed: () {
-                      replay();
-                    },
-                  ),
-                ),
+                    alignment: Alignment.topLeft,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.replay),
+                          color: Colors.white,
+                          onPressed: () {
+                            replay();
+                          },
+                        ),
+                        IconButton(
+                          icon: icon,
+                          color: Colors.white,
+                          onPressed: () {
+                            changeIcon();
+                          },
+                        ),
+                      ],
+                    )),
               ]);
             }),
         floatingActionButton: FloatingActionButton(

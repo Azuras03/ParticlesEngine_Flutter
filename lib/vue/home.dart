@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:particlesengine/vue/particleengine.dart';
+import 'package:particlesengine/vue/particle_engine.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);

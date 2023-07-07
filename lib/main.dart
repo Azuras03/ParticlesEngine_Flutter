@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:particlesengine/vue/home.dart';
-import 'package:particlesengine/vue/particleengine.dart';
+import 'package:particlesengine/vue/particle_engine.dart';
 
-import 'model/Particle.dart';
+import 'model/particle.dart';
 
 void main() {
   runApp(const HomeApp());
