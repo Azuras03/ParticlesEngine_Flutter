@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:particlesengine/vue/particleengine.dart';
+import 'package:particlesengine/vue/particle_engine.dart';
 
 class Particle {
 

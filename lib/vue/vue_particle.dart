@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:particlesengine/vue/particleengine.dart';
-import 'package:particlesengine/model/Particle.dart';
+import 'package:particlesengine/vue/particle_engine.dart';
+import 'package:particlesengine/model/particle.dart';
 
-import '../model/Explosion.dart';
+import '../model/explosion.dart';
 
 class VueParticle extends CustomPainter {
   final List<Particle> _particles;
