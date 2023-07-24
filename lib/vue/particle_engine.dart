@@ -33,6 +33,7 @@ class ParticleEngine extends StatefulWidget {
 
 class ParticleEngineState extends State<ParticleEngine>
     with SingleTickerProviderStateMixin {
+  final AudioPlayer audioPlayerExplosion = AudioPlayer();
   Icon icon = const Icon(Icons.pause);
   bool isPlaying = true;
   late VueParticle vueParticle;
@@ -45,6 +46,7 @@ class ParticleEngineState extends State<ParticleEngine>
     _controller = AnimationController(
         vsync: this, duration: const Duration(seconds: 100000000));
     _controller.forward();
+    audioPlayerExplosion.setPlayerMode(PlayerMode.mediaPlayer);
   }
 
   @override
@@ -88,6 +90,16 @@ class ParticleEngineState extends State<ParticleEngine>
     for (int i = 0; i < ParticleEngine.nbParticlesClick; i++) {
       addSingleParticle(details, color);
     }
+    playRemoteFile();
+  }
+
+  void playRemoteFile() {
+    if(audioPlayerExplosion.state == PlayerState.playing || audioPlayerExplosion.state == PlayerState.completed) {
+      audioPlayerExplosion.seek(const Duration(seconds: 0));
+      audioPlayerExplosion.resume();
+      return;
+    }
+    audioPlayerExplosion.play(AssetSource("sounds/boom.mp3"));
   }
 
   void addSingleParticle(PointerEvent details, Color color) {
