@@ -1,10 +1,9 @@
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:vibration/vibration.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:particlesengine/model/particle.dart';
 import 'package:particlesengine/vue/particle_settings.dart';
 import 'package:particlesengine/vue/vue_particle.dart';
@@ -82,21 +81,32 @@ class ParticleEngineState extends State<ParticleEngine>
     _controller.forward();
   }
 
-  void addParticlesClick(PointerEvent details) {
+  Future<void> addParticlesClick(PointerEvent details) async {
     if (!isPlaying) return;
+    vibrate(128, 100);
+    playRemoteFile();
     Color color = Color.fromARGB(255, Random().nextInt(255),
         Random().nextInt(255), Random().nextInt(255));
     addSingleExplosion(details, color, ParticleEngine.explosionSize);
     for (int i = 0; i < ParticleEngine.nbParticlesClick; i++) {
       addSingleParticle(details, color);
     }
-    playRemoteFile();
+  }
+
+  Future<void> vibrate(int amplitude, int duration) async {
+    bool? hasAmplitude = await checkAmplitude();
+    if (hasAmplitude != null && hasAmplitude) {
+      Vibration.vibrate(amplitude: amplitude, duration: duration);
+    }
+  }
+
+  Future<bool?> checkAmplitude() {
+    return Vibration.hasAmplitudeControl();
   }
 
   void playRemoteFile() {
-    if(audioPlayerExplosion.state == PlayerState.playing || audioPlayerExplosion.state == PlayerState.completed) {
+    if(audioPlayerExplosion.state == PlayerState.playing) {
       audioPlayerExplosion.seek(const Duration(seconds: 0));
-      audioPlayerExplosion.resume();
       return;
     }
     audioPlayerExplosion.play(AssetSource("sounds/boom.mp3"));
@@ -123,6 +133,7 @@ class ParticleEngineState extends State<ParticleEngine>
 
   void addParticlesDrag(PointerEvent details) {
     if (!isPlaying) return;
+    vibrate(50, 50);
     Color color = Color.fromARGB(255, Random().nextInt(255),
             Random().nextInt(255), Random().nextInt(255))
         .withOpacity(0.5);
