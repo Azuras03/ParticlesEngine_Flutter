@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multiselect/multiselect.dart';
 import 'package:particlesengine/vue/particle_engine.dart';
 
 class ParticleSettings extends StatefulWidget {
@@ -136,6 +137,24 @@ class _ParticleSettingsState extends State<ParticleSettings> {
               ),
             ],
           ),
+          Column(
+            children: [
+              const Text(
+                "Sons des explosions",
+                style: TextStyle(fontSize: 20),
+              ),
+              DropDownMultiSelect(
+                onChanged: (List<String> values) {
+                  setState(() {
+                    ParticleEngine.explosionPathsSelected = values;
+                  });
+                },
+                options: ParticleEngine.explosionPaths,
+                selectedValues: ParticleEngine.explosionPathsSelected,
+                whenEmpty: "Aucun son sélectionné",
+              ),
+            ],
+          )
         ]),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.check),

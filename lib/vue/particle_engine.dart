@@ -13,7 +13,18 @@ import '../model/explosion.dart';
 class ParticleEngine extends StatefulWidget {
   final List<Particle> _particles = [];
   final List<Explosion> _explosions = [];
-  final List<String> explosionPaths = ["sounds/explosion.wav", "sounds/explosion2.wav", "sounds/explosion3.wav"];
+  static final List<String> explosionPaths = ["sounds/explosion.wav",
+    "sounds/explosion2.wav",
+    "sounds/explosion3.wav",
+    "sounds/bonk.mp3",
+    "sounds/BOOM.mp3",
+    "sounds/HEHEHEHA.mp3",
+    "sounds/samsung.mp3",
+    "sounds/vineboom.mp3",
+  ];
+  static List<String> explosionPathsSelected = ["sounds/explosion.wav",
+    "sounds/explosion2.wav",
+    "sounds/explosion3.wav",];
   static double gravity = 0.5;
   static double friction = 0.99;
   static double maxTime = 5;
@@ -126,7 +137,7 @@ class ParticleEngineState extends State<ParticleEngine>
   }
 
   String getExplosionPath() {
-    return widget.explosionPaths[Random().nextInt(widget.explosionPaths.length)];
+    return ParticleEngine.explosionPathsSelected[Random().nextInt(ParticleEngine.explosionPathsSelected.length)];
   }
 
   Future<int> findUsableAudioPlayer() {
