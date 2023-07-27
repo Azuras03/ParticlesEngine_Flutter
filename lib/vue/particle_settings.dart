@@ -92,6 +92,30 @@ class _ParticleSettingsState extends State<ParticleSettings> {
               ),
             ],
           ),
+          Container(
+            child: DropdownButtonFormField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Forme des particules',
+              ),
+              value: ParticleEngine.particleShape,
+              onChanged: (String? newValue) {
+                setState(() {
+                  ParticleEngine.particleShape = newValue!;
+                });
+              },
+              items: ParticleEngine.particleShapes
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value,
+                      style: const TextStyle(
+                        fontSize: 20,
+                      )),
+                );
+              }).toList(),
+            ),
+          ),
           Column(
             children: [
               const Text(

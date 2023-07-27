@@ -22,6 +22,8 @@ class ParticleEngine extends StatefulWidget {
   static int nbParticlesDrag = 2;
   static double timeExplosion = 1;
   static double explosionSize = 100;
+  static List<String> particleShapes = ["circle", "square", "triangle", "star", "flower"];
+  static String particleShape = "circle";
 
   ParticleEngine({super.key});
 
