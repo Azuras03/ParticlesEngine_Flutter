@@ -38,6 +38,7 @@ class ParticleEngine extends StatefulWidget {
   static double explosionSize = 100;
   static List<String> particleShapes = ["circle", "square", "triangle", "star", "flower"];
   static String particleShape = "circle";
+  static bool lowDetail = false;
 
   ParticleEngine({super.key});
 

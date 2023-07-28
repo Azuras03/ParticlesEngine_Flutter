@@ -154,7 +154,16 @@ class _ParticleSettingsState extends State<ParticleSettings> {
                 whenEmpty: "Aucun son sélectionné",
               ),
             ],
-          )
+          ),
+          SwitchListTile(
+            title: const Text("Low Detail"),
+            value: ParticleEngine.lowDetail,
+            onChanged: (bool value) {
+              setState(() {
+                ParticleEngine.lowDetail = value;
+              });
+            },
+          ),
         ]),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.check),

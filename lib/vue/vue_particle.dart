@@ -33,7 +33,8 @@ class VueParticle extends CustomPainter {
     }
   }
 
-  void drawPathParticle(Particle particle, Size size, Canvas canvas, Path chosenPath) {
+  void drawPathParticle(
+      Particle particle, Size size, Canvas canvas, Path chosenPath) {
     double opacity =
         (ParticleEngine.maxTime - particle.time) / ParticleEngine.maxTime;
     particle.update(size.width, size.height);
@@ -48,6 +49,11 @@ class VueParticle extends CustomPainter {
     canvas.translate(particle.x, particle.y);
     double rotation = atan2(particle.speedY, particle.speedX);
     canvas.rotate(rotation + pi / 2);
+    if (ParticleEngine.lowDetail) return;
+    highDetailTransformCanvas(particle, canvas);
+  }
+
+  void highDetailTransformCanvas(Particle particle, Canvas canvas) {
     double abs = 1;
     if (particle.speedX > 1 || particle.speedX < -1) {
       abs = particle.speedX.abs() / 2;
