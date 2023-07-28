@@ -11,14 +11,17 @@ import '../model/explosion.dart';
 
 class VueParticle extends CustomPainter {
   final List<Particle> _particles;
+  final List<List<Particle>> _particlesLastFrames = [[], [], []];
   final List<Explosion> _explosions;
 
   VueParticle(this._particles, this._explosions);
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.restore();
     drawExplosions(canvas, size);
     drawParticles(canvas, size);
+    canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
   }
 
   void drawParticles(Canvas canvas, Size size) {
@@ -40,25 +43,38 @@ class VueParticle extends CustomPainter {
     particle.update(size.width, size.height);
     canvas.save();
     transformCanvas(canvas, particle);
+    if (ParticleEngine.transformParticle) chosenPath = highDetailTransformPath(particle, chosenPath);
+    if (ParticleEngine.trailParticle) addTrailParticle(canvas, particle, opacity, chosenPath);
     canvas.drawPath(
         chosenPath, Paint()..color = particle.color.withOpacity(opacity));
     canvas.restore();
+  }
+
+  void addTrailParticle(Canvas canvas, Particle particle, double opacity, Path chosenPath) {
+    double speedXTimesTwo = particle.speedX * 2;
+    for (int i = 1; i < 3; i++) {
+      canvas.save();
+      canvas.translate(0,speedXTimesTwo * i);
+      canvas.drawPath(chosenPath,
+          Paint()..color = particle.color.withOpacity(opacity / (2 * i)));
+      canvas.restore();
+    }
   }
 
   void transformCanvas(Canvas canvas, Particle particle) {
     canvas.translate(particle.x, particle.y);
     double rotation = atan2(particle.speedY, particle.speedX);
     canvas.rotate(rotation + pi / 2);
-    if (ParticleEngine.lowDetail) return;
-    highDetailTransformCanvas(particle, canvas);
   }
 
-  void highDetailTransformCanvas(Particle particle, Canvas canvas) {
+  Path highDetailTransformPath(Particle particle, Path path) {
     double abs = 1;
     if (particle.speedX > 1 || particle.speedX < -1) {
       abs = particle.speedX.abs() / 2;
     }
-    canvas.scale(1, abs);
+    Float64List matrix4 = Float64List.fromList(
+        [1, 0, 0, 0, 0, abs, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    return path.transform(matrix4);
   }
 
   determineShapeFunction() {
@@ -156,7 +172,7 @@ class VueParticle extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }
 

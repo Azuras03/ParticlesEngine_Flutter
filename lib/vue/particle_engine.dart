@@ -15,6 +15,7 @@ import '../model/explosion.dart';
 class ParticleEngine extends StatefulWidget {
   final List<Particle> _particles = [];
   final List<Explosion> _explosions = [];
+
   /*static final List<String> explosionPaths = ["sounds/explosion.wav",
     "sounds/explosion2.wav",
     "sounds/explosion3.wav",
@@ -25,9 +26,11 @@ class ParticleEngine extends StatefulWidget {
     "sounds/vineboom.mp3",
   ];*/
   static List<String> explosionPaths = [];
-  static List<String> explosionPathsSelected = ["sounds/explosion.wav",
+  static List<String> explosionPathsSelected = [
+    "sounds/explosion.wav",
     "sounds/explosion2.wav",
-    "sounds/explosion3.wav",];
+    "sounds/explosion3.wav",
+  ];
   static double gravity = 0.5;
   static double friction = 0.99;
   static double maxTime = 5;
@@ -36,9 +39,16 @@ class ParticleEngine extends StatefulWidget {
   static int nbParticlesDrag = 2;
   static double timeExplosion = 1;
   static double explosionSize = 100;
-  static List<String> particleShapes = ["circle", "square", "triangle", "star", "flower"];
+  static List<String> particleShapes = [
+    "circle",
+    "square",
+    "triangle",
+    "star",
+    "flower"
+  ];
   static String particleShape = "circle";
-  static bool lowDetail = false;
+  static bool trailParticle = true;
+  static bool transformParticle = false;
 
   ParticleEngine({super.key});
 
@@ -67,8 +77,12 @@ class ParticleEngineState extends State<ParticleEngine>
   }
 
   void setExplosionPaths() async {
-    final manifestJson = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
-    final sounds = json.decode(manifestJson).keys.where((String key) => key.startsWith('assets/sounds'));
+    final manifestJson =
+        await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
+    final sounds = json
+        .decode(manifestJson)
+        .keys
+        .where((String key) => key.startsWith('assets/sounds'));
     ParticleEngine.explosionPaths.clear();
     ParticleEngine.explosionPathsSelected.clear();
     for (String sound in sounds) {
@@ -155,7 +169,8 @@ class ParticleEngineState extends State<ParticleEngine>
   }
 
   String getExplosionPath() {
-    return ParticleEngine.explosionPathsSelected[Random().nextInt(ParticleEngine.explosionPathsSelected.length)];
+    return ParticleEngine.explosionPathsSelected[
+        Random().nextInt(ParticleEngine.explosionPathsSelected.length)];
   }
 
   Future<int> findUsableAudioPlayer() {
@@ -192,55 +207,58 @@ class ParticleEngineState extends State<ParticleEngine>
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black,
-        body: AnimatedBuilder(
-            animation: _controller,
-            builder: (BuildContext context, Widget? child) {
-              return Stack(children: [
-                Listener(
-                  onPointerDown: (details) {
-                    addParticlesClick(details);
-                  },
-                  onPointerMove: (details) {
-                    addParticlesDrag(details);
-                  },
-                  child: CustomPaint(
-                    painter: vueParticle =
-                        VueParticle(widget._particles, widget._explosions),
-                    child: Container(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.settings),
-                    color: Colors.white,
-                    onPressed: () {
-                      Navigator.of(context).push(_createRoute(const ParticleSettings()));
+        body: Stack(
+          children: [
+            AnimatedBuilder(
+                animation: _controller,
+                builder: (BuildContext context, Widget? child) {
+                  return Listener(
+                    onPointerDown: (details) {
+                      addParticlesClick(details);
                     },
-                  ),
-                ),
-                Align(
-                    alignment: Alignment.topLeft,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.replay),
-                          color: Colors.white,
-                          onPressed: () {
-                            replay();
-                          },
-                        ),
-                        IconButton(
-                          icon: icon,
-                          color: Colors.white,
-                          onPressed: () {
-                            changeIcon();
-                          },
-                        ),
-                      ],
-                    )),
-              ]);
-            }),
+                    onPointerMove: (details) {
+                      addParticlesDrag(details);
+                    },
+                    child: CustomPaint(
+                      painter: vueParticle =
+                          VueParticle(widget._particles, widget._explosions),
+                      child: Container(),
+                    ),
+                  );
+                }),
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.settings),
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(_createRoute(const ParticleSettings()));
+                },
+              ),
+            ),
+            Align(
+                alignment: Alignment.topLeft,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.replay),
+                      color: Colors.white,
+                      onPressed: () {
+                        replay();
+                      },
+                    ),
+                    IconButton(
+                      icon: icon,
+                      color: Colors.white,
+                      onPressed: () {
+                        changeIcon();
+                      },
+                    ),
+                  ],
+                )),
+          ],
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.pop(context);
@@ -251,8 +269,7 @@ class ParticleEngineState extends State<ParticleEngine>
 
   Route _createRoute(partSettings) {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          partSettings,
+      pageBuilder: (context, animation, secondaryAnimation) => partSettings,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         //ScaleTransition
         var begin = 0.0;

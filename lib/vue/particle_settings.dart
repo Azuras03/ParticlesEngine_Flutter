@@ -156,11 +156,29 @@ class _ParticleSettingsState extends State<ParticleSettings> {
             ],
           ),
           SwitchListTile(
-            title: const Text("Low Detail"),
-            value: ParticleEngine.lowDetail,
+            title: const Text("Transformations des particules"),
+            value: ParticleEngine.transformParticle,
             onChanged: (bool value) {
               setState(() {
-                ParticleEngine.lowDetail = value;
+                ParticleEngine.transformParticle = value;
+              });
+            },
+          ),
+          /*SwitchListTile(
+            title: const Text("Rotation des particules"),
+            value: ParticleEngine.rotateParticle,
+            onChanged: (bool value) {
+              setState(() {
+                ParticleEngine.rotateParticle = value;
+              });
+            },
+          ),*/
+          SwitchListTile(
+            title: const Text("Trail des particules"),
+            value: ParticleEngine.trailParticle,
+            onChanged: (bool value) {
+              setState(() {
+                ParticleEngine.trailParticle = value;
               });
             },
           ),
