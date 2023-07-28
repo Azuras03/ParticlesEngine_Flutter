@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -13,7 +15,7 @@ import '../model/explosion.dart';
 class ParticleEngine extends StatefulWidget {
   final List<Particle> _particles = [];
   final List<Explosion> _explosions = [];
-  static final List<String> explosionPaths = ["sounds/explosion.wav",
+  /*static final List<String> explosionPaths = ["sounds/explosion.wav",
     "sounds/explosion2.wav",
     "sounds/explosion3.wav",
     "sounds/bonk.mp3",
@@ -21,7 +23,8 @@ class ParticleEngine extends StatefulWidget {
     "sounds/HEHEHEHA.mp3",
     "sounds/samsung.mp3",
     "sounds/vineboom.mp3",
-  ];
+  ];*/
+  static List<String> explosionPaths = [];
   static List<String> explosionPathsSelected = ["sounds/explosion.wav",
     "sounds/explosion2.wav",
     "sounds/explosion3.wav",];
@@ -55,10 +58,24 @@ class ParticleEngineState extends State<ParticleEngine>
   @override
   void initState() {
     super.initState();
+    setExplosionPaths();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _controller = AnimationController(
         vsync: this, duration: const Duration(seconds: 100000000));
     _controller.forward();
+  }
+
+  void setExplosionPaths() async {
+    final manifestJson = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
+    final sounds = json.decode(manifestJson).keys.where((String key) => key.startsWith('assets/sounds'));
+    ParticleEngine.explosionPaths.clear();
+    ParticleEngine.explosionPathsSelected.clear();
+    for (String sound in sounds) {
+      ParticleEngine.explosionPaths.add(sound.split("assets/")[1]);
+      if (sound.contains("explosion")) {
+        ParticleEngine.explosionPathsSelected.add(sound.split("assets/")[1]);
+      }
+    }
   }
 
   @override

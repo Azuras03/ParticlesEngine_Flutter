@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:particlesengine/vue/particle_engine.dart';
@@ -11,7 +13,7 @@ class VueParticle extends CustomPainter {
   final List<Particle> _particles;
   final List<Explosion> _explosions;
 
-  const VueParticle(this._particles, this._explosions);
+  VueParticle(this._particles, this._explosions);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -20,77 +22,92 @@ class VueParticle extends CustomPainter {
   }
 
   void drawParticles(Canvas canvas, Size size) {
-    var chosenFunction;
-    switch (ParticleEngine.particleShape) {
-      case "circle":
-        chosenFunction = drawCircle;
-        break;
-      case "square":
-        chosenFunction = drawSquare;
-        break;
-      case "triangle":
-        chosenFunction = drawTriangle;
-        break;
-      case "star":
-        chosenFunction = drawStar;
-        break;
-      case "flower":
-        chosenFunction = drawFlower;
-        break;
-    }
+    Path chosenPath;
+    chosenPath = determineShapeFunction()(canvas);
     purge();
     for (Particle particle in _particles) {
       if (!particle.good) {
         continue;
       }
-      double opacity =
-          (ParticleEngine.maxTime - particle.time) / ParticleEngine.maxTime;
-      particle.update(size.width, size.height);
-      canvas.save();
-      canvas.translate(particle.x, particle.y);
-      double rotation = atan2(particle.speedY, particle.speedX);
-      canvas.rotate(rotation + pi / 2);
-      chosenFunction(canvas, particle, opacity);
-      canvas.restore();
+      drawPathParticle(particle, size, canvas, chosenPath);
     }
   }
 
-  void drawCircle(Canvas canvas, Particle particle, double opacity) {
-    canvas.drawOval(
-        Rect.fromCenter(
-            center: const Offset(0, 0),
-            width: particle.size,
-            height: particle.size + particle.speedX.abs() * 2),
-        Paint()..color = particle.color.withOpacity(opacity));
+  void drawPathParticle(Particle particle, Size size, Canvas canvas, Path chosenPath) {
+    double opacity =
+        (ParticleEngine.maxTime - particle.time) / ParticleEngine.maxTime;
+    particle.update(size.width, size.height);
+    canvas.save();
+    transformCanvas(canvas, particle);
+    canvas.drawPath(
+        chosenPath, Paint()..color = particle.color.withOpacity(opacity));
+    canvas.restore();
   }
 
-  void drawSquare(Canvas canvas, Particle particle, double opacity) {
-    canvas.drawRect(
-        Rect.fromCenter(
-            center: const Offset(0, 0),
-            width: particle.size,
-            height: particle.size + particle.speedX.abs() * 2),
-        Paint()..color = particle.color.withOpacity(opacity));
+  void transformCanvas(Canvas canvas, Particle particle) {
+    canvas.translate(particle.x, particle.y);
+    double rotation = atan2(particle.speedY, particle.speedX);
+    canvas.rotate(rotation + pi / 2);
+    double abs = 1;
+    if (particle.speedX > 1 || particle.speedX < -1) {
+      abs = particle.speedX.abs() / 2;
+    }
+    canvas.scale(1, abs);
   }
 
-  void drawTriangle(Canvas canvas, Particle particle, double opacity) {
+  determineShapeFunction() {
+    switch (ParticleEngine.particleShape) {
+      case "square":
+        return drawSquare;
+      case "triangle":
+        return drawTriangle;
+      case "star":
+        return drawStar;
+      case "flower":
+        return drawFlower;
+      default:
+        return drawCircle;
+    }
+  }
+
+  Path drawCircle(Canvas canvas) {
     Path path = Path();
-    path.moveTo(0, -particle.size / 2);
-    path.lineTo(particle.size / 2 + particle.speedX.abs(), particle.size / 2);
-    path.lineTo(-particle.size / 2 - particle.speedX.abs(), particle.size / 2);
-    path.close();
-    canvas.drawPath(path, Paint()..color = particle.color.withOpacity(opacity));
+    path.addOval(Rect.fromCenter(
+        center: const Offset(0, 0),
+        width: ParticleEngine.particleSize,
+        height: ParticleEngine.particleSize));
+    return path;
   }
 
-  void drawStar(Canvas canvas, Particle particle, double opacity) {
+  Path drawSquare(Canvas canvas) {
+    Path path = Path();
+    path.addRect(Rect.fromCenter(
+        center: const Offset(0, 0),
+        width: ParticleEngine.particleSize,
+        height: ParticleEngine.particleSize));
+    return path;
+  }
+
+  Path drawTriangle(Canvas canvas) {
+    Path path = Path();
+    var size = ParticleEngine.particleSize;
+    path.moveTo(0, -size / 2);
+    path.lineTo(size / 2, size / 2);
+    path.lineTo(-size / 2, size / 2);
+    path.close();
+    return path;
+  }
+
+  Path drawStar(Canvas canvas) {
     Path path = Path();
     double rot = pi / 2 * 3;
-    double x = particle.x;
-    double y = particle.y;
+    double x = 0;
+    double y = 0;
     int spikes = 5;
     double step = pi / spikes;
-    double innerRadius = particle.size / 2;
-    double outerRadius = particle.size;
+    double size = ParticleEngine.particleSize;
+    double innerRadius = size / 2;
+    double outerRadius = size;
     path.moveTo(0, 0 - outerRadius);
     for (int i = 0; i < spikes; i++) {
       x = 0 + cos(rot) * outerRadius;
@@ -103,29 +120,29 @@ class VueParticle extends CustomPainter {
       path.lineTo(x, y);
       rot += step;
     }
-    path.lineTo(0, 0 - outerRadius);
     path.close();
-    canvas.drawPath(path, Paint()..color = particle.color.withOpacity(opacity));
+    return path;
   }
 
-  void drawFlower(Canvas canvas, Particle particle, double opacity) {
+  Path drawFlower(Canvas canvas) {
     Path path = Path();
     int numPetals = 5;
+    double size = ParticleEngine.particleSize * 1.5;
     for (var n = 0; n < numPetals; n++) {
       var theta1 = ((pi * 2) / numPetals) * (n + 1);
       var theta2 = ((pi * 2) / numPetals) * (n);
 
-      var x1 = (particle.size * sin(theta1));
-      var y1 = (particle.size * cos(theta1));
-      var x2 = (particle.size * sin(theta2));
-      var y2 = (particle.size * cos(theta2));
+      var x1 = (size * sin(theta1));
+      var y1 = (size * cos(theta1));
+      var x2 = (size * sin(theta2));
+      var y2 = (size * cos(theta2));
 
       path.moveTo(0, 0);
       path.cubicTo(x1, y1, x2, y2, 0, 0);
     }
 
     path.close();
-    canvas.drawPath(path, Paint()..color = particle.color.withOpacity(opacity));
+    return path;
   }
 
   void purge() {
