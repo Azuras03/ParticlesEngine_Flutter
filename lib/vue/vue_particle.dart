@@ -11,39 +11,35 @@ import '../model/explosion.dart';
 
 class VueParticle extends CustomPainter {
   final List<Particle> _particles;
-  final List<List<Particle>> _particlesLastFrames = [[], [], []];
   final List<Explosion> _explosions;
 
   VueParticle(this._particles, this._explosions);
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.restore();
     drawExplosions(canvas, size);
     drawParticles(canvas, size);
-    canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
   }
 
   void drawParticles(Canvas canvas, Size size) {
     Path chosenPath;
-    chosenPath = determineShapeFunction()(canvas);
+    chosenPath = determineShapeFunction();
     purge();
     for (Particle particle in _particles) {
+      particle.update(size.width, size.height);
       if (!particle.good) {
         continue;
       }
-      drawPathParticle(particle, size, canvas, chosenPath);
+      drawPathParticle(particle, canvas, chosenPath);
     }
   }
 
-  void drawPathParticle(
-      Particle particle, Size size, Canvas canvas, Path chosenPath) {
-    double opacity =
-        (ParticleEngine.maxTime - particle.time) / ParticleEngine.maxTime;
-    particle.update(size.width, size.height);
+  void drawPathParticle(Particle particle, Canvas canvas, Path chosenPath) {
     canvas.save();
     transformCanvas(canvas, particle);
-    if (ParticleEngine.transformParticle) chosenPath = highDetailTransformPath(particle, chosenPath);
+    double opacity =
+        (ParticleEngine.maxTime - particle.time) / ParticleEngine.maxTime;
+    if (ParticleEngine.transformParticle) chosenPath = transformPath(particle, chosenPath);
     if (ParticleEngine.trailParticle) addTrailParticle(canvas, particle, opacity, chosenPath);
     canvas.drawPath(
         chosenPath, Paint()..color = particle.color.withOpacity(opacity));
@@ -51,7 +47,7 @@ class VueParticle extends CustomPainter {
   }
 
   void addTrailParticle(Canvas canvas, Particle particle, double opacity, Path chosenPath) {
-    double speedXTimesTwo = particle.speedX * 2;
+    double speedXTimesTwo = particle.speedX.abs() * 2;
     for (int i = 1; i < 3; i++) {
       canvas.save();
       canvas.translate(0,speedXTimesTwo * i);
@@ -67,10 +63,10 @@ class VueParticle extends CustomPainter {
     canvas.rotate(rotation + pi / 2);
   }
 
-  Path highDetailTransformPath(Particle particle, Path path) {
-    double abs = 1;
-    if (particle.speedX > 1 || particle.speedX < -1) {
-      abs = particle.speedX.abs() / 2;
+  Path transformPath(Particle particle, Path path) {
+    double abs = particle.speedX.abs() / 4;
+    if (abs < 1 && abs > -1) {
+      abs = 1;
     }
     Float64List matrix4 = Float64List.fromList(
         [1, 0, 0, 0, 0, abs, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -80,91 +76,16 @@ class VueParticle extends CustomPainter {
   determineShapeFunction() {
     switch (ParticleEngine.particleShape) {
       case "square":
-        return drawSquare;
+        return ParticleEngine.paths[0];
       case "triangle":
-        return drawTriangle;
+        return ParticleEngine.paths[1];
       case "star":
-        return drawStar;
+        return ParticleEngine.paths[2];
       case "flower":
-        return drawFlower;
+        return ParticleEngine.paths[3];
       default:
-        return drawCircle;
+        return ParticleEngine.paths[4];
     }
-  }
-
-  Path drawCircle(Canvas canvas) {
-    Path path = Path();
-    path.addOval(Rect.fromCenter(
-        center: const Offset(0, 0),
-        width: ParticleEngine.particleSize,
-        height: ParticleEngine.particleSize));
-    return path;
-  }
-
-  Path drawSquare(Canvas canvas) {
-    Path path = Path();
-    path.addRect(Rect.fromCenter(
-        center: const Offset(0, 0),
-        width: ParticleEngine.particleSize,
-        height: ParticleEngine.particleSize));
-    return path;
-  }
-
-  Path drawTriangle(Canvas canvas) {
-    Path path = Path();
-    var size = ParticleEngine.particleSize;
-    path.moveTo(0, -size / 2);
-    path.lineTo(size / 2, size / 2);
-    path.lineTo(-size / 2, size / 2);
-    path.close();
-    return path;
-  }
-
-  Path drawStar(Canvas canvas) {
-    Path path = Path();
-    double rot = pi / 2 * 3;
-    double x = 0;
-    double y = 0;
-    int spikes = 5;
-    double step = pi / spikes;
-    double size = ParticleEngine.particleSize;
-    double innerRadius = size / 2;
-    double outerRadius = size;
-    path.moveTo(0, 0 - outerRadius);
-    for (int i = 0; i < spikes; i++) {
-      x = 0 + cos(rot) * outerRadius;
-      y = 0 + sin(rot) * outerRadius;
-      path.lineTo(x, y);
-      rot += step;
-
-      x = 0 + cos(rot) * innerRadius;
-      y = 0 + sin(rot) * innerRadius;
-      path.lineTo(x, y);
-      rot += step;
-    }
-    path.close();
-    return path;
-  }
-
-  Path drawFlower(Canvas canvas) {
-    Path path = Path();
-    int numPetals = 5;
-    double size = ParticleEngine.particleSize * 1.5;
-    for (var n = 0; n < numPetals; n++) {
-      var theta1 = ((pi * 2) / numPetals) * (n + 1);
-      var theta2 = ((pi * 2) / numPetals) * (n);
-
-      var x1 = (size * sin(theta1));
-      var y1 = (size * cos(theta1));
-      var x2 = (size * sin(theta2));
-      var y2 = (size * cos(theta2));
-
-      path.moveTo(0, 0);
-      path.cubicTo(x1, y1, x2, y2, 0, 0);
-    }
-
-    path.close();
-    return path;
   }
 
   void purge() {

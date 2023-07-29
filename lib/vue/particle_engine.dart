@@ -47,8 +47,11 @@ class ParticleEngine extends StatefulWidget {
     "flower"
   ];
   static String particleShape = "circle";
-  static bool trailParticle = true;
-  static bool transformParticle = false;
+  static bool transformParticle = true;
+  static bool trailParticle = false;
+  static bool hapticFeedback = false;
+  static List<Path> paths = [];
+
 
   ParticleEngine({super.key});
 
@@ -65,6 +68,7 @@ class ParticleEngineState extends State<ParticleEngine>
   bool isPlaying = true;
   late VueParticle vueParticle;
   late AnimationController _controller;
+  bool vibrationSensor = false;
 
   @override
   void initState() {
@@ -72,8 +76,99 @@ class ParticleEngineState extends State<ParticleEngine>
     setExplosionPaths();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _controller = AnimationController(
-        vsync: this, duration: const Duration(seconds: 100000000));
+        vsync: this,
+        duration: const Duration(seconds: 100000000),
+        animationBehavior: AnimationBehavior.preserve);
     _controller.forward();
+    _vibrationSensorVerif().then((value) => vibrationSensor = value);
+    drawAllPaths();
+  }
+
+  void drawAllPaths() {
+    ParticleEngine.paths.add(drawSquare());
+    ParticleEngine.paths.add(drawTriangle());
+    ParticleEngine.paths.add(drawStar());
+    ParticleEngine.paths.add(drawFlower());
+    ParticleEngine.paths.add(drawCircle());
+  }
+
+  Path drawCircle() {
+    Path path = Path();
+    path.addOval(Rect.fromCenter(
+        center: const Offset(0, 0),
+        width: ParticleEngine.particleSize,
+        height: ParticleEngine.particleSize));
+    return path;
+  }
+
+  Path drawSquare() {
+    Path path = Path();
+    path.addRect(Rect.fromCenter(
+        center: const Offset(0, 0),
+        width: ParticleEngine.particleSize,
+        height: ParticleEngine.particleSize));
+    return path;
+  }
+
+  Path drawTriangle() {
+    Path path = Path();
+    var size = ParticleEngine.particleSize;
+    path.moveTo(0, -size / 2);
+    path.lineTo(size / 2, size / 2);
+    path.lineTo(-size / 2, size / 2);
+    path.close();
+    return path;
+  }
+
+  Path drawStar() {
+    Path path = Path();
+    double rot = pi / 2 * 3;
+    double x = 0;
+    double y = 0;
+    int spikes = 4;
+    double step = pi / spikes;
+    double size = ParticleEngine.particleSize;
+    double innerRadius = size / 2;
+    double outerRadius = size;
+    path.moveTo(0, 0 - outerRadius);
+    for (int i = 0; i < spikes; i++) {
+      x = 0 + cos(rot) * outerRadius;
+      y = 0 + sin(rot) * outerRadius;
+      path.lineTo(x, y);
+      rot += step;
+
+      x = 0 + cos(rot) * innerRadius;
+      y = 0 + sin(rot) * innerRadius;
+      path.lineTo(x, y);
+      rot += step;
+    }
+    path.close();
+    return path;
+  }
+
+  Path drawFlower() {
+    Path path = Path();
+    int numPetals = 5;
+    double size = ParticleEngine.particleSize * 1.5;
+    for (var n = 0; n < numPetals; n++) {
+      var theta1 = ((pi * 2) / numPetals) * (n + 1);
+      var theta2 = ((pi * 2) / numPetals) * (n);
+
+      var x1 = (size * sin(theta1));
+      var y1 = (size * cos(theta1));
+      var x2 = (size * sin(theta2));
+      var y2 = (size * cos(theta2));
+
+      path.moveTo(0, 0);
+      path.cubicTo(x1, y1, x2, y2, 0, 0);
+    }
+
+    path.close();
+    return path;
+  }
+
+  Future<bool> _vibrationSensorVerif() async {
+    return Platform.isAndroid || Platform.isIOS;
   }
 
   void setExplosionPaths() async {
@@ -105,7 +200,7 @@ class ParticleEngineState extends State<ParticleEngine>
     });
   }
 
-  void changeIcon() {
+  void changeIconAnimation() {
     setState(() {
       if (isPlaying) {
         icon = const Icon(Icons.play_arrow);
@@ -126,7 +221,7 @@ class ParticleEngineState extends State<ParticleEngine>
     _controller.forward();
   }
 
-  Future<void> addParticlesClick(PointerEvent details) async {
+  void addParticlesClick(PointerEvent details) async {
     if (!isPlaying) return;
     vibrate(128, 100);
     playExplosionFile();
@@ -140,7 +235,7 @@ class ParticleEngineState extends State<ParticleEngine>
 
   void addParticlesDrag(PointerEvent details) {
     if (!isPlaying) return;
-    vibrate(50, 50);
+    if (ParticleEngine.hapticFeedback) vibrate(50, 50);
     Color color = Color.fromARGB(255, Random().nextInt(255),
             Random().nextInt(255), Random().nextInt(255))
         .withOpacity(0.5);
@@ -150,15 +245,9 @@ class ParticleEngineState extends State<ParticleEngine>
     }
   }
 
-  Future<void> vibrate(int amplitude, int duration) async {
-    bool? hasAmplitude = await checkAmplitude();
-    if (hasAmplitude != null && hasAmplitude) {
-      Vibration.vibrate(amplitude: amplitude, duration: duration);
-    }
-  }
-
-  Future<bool?> checkAmplitude() {
-    return Vibration.hasAmplitudeControl();
+  void vibrate(int amplitude, int duration) async {
+    if (!vibrationSensor) return;
+    Vibration.vibrate(amplitude: amplitude, duration: duration);
   }
 
   void playExplosionFile() {
@@ -252,7 +341,7 @@ class ParticleEngineState extends State<ParticleEngine>
                       icon: icon,
                       color: Colors.white,
                       onPressed: () {
-                        changeIcon();
+                        changeIconAnimation();
                       },
                     ),
                   ],
