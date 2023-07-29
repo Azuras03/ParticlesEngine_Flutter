@@ -33,7 +33,7 @@ class ParticleEngine extends StatefulWidget {
   ];
   static double gravity = 0.5;
   static double friction = 0.99;
-  static double maxTime = 5;
+  static double maxTime = 3;
   static double particleSize = 10;
   static int nbParticlesClick = 20;
   static int nbParticlesDrag = 2;
@@ -125,7 +125,7 @@ class ParticleEngineState extends State<ParticleEngine>
     double rot = pi / 2 * 3;
     double x = 0;
     double y = 0;
-    int spikes = 4;
+    int spikes = 5;
     double step = pi / spikes;
     double size = ParticleEngine.particleSize;
     double innerRadius = size / 2;
@@ -224,7 +224,7 @@ class ParticleEngineState extends State<ParticleEngine>
   void addParticlesClick(PointerEvent details) async {
     if (!isPlaying) return;
     vibrate(128, 100);
-    playExplosionFile();
+    if(ParticleEngine.explosionPathsSelected.isNotEmpty) playExplosionFile();
     Color color = Color.fromARGB(255, Random().nextInt(255),
         Random().nextInt(255), Random().nextInt(255));
     addSingleExplosion(details, color, ParticleEngine.explosionSize);

@@ -47,10 +47,12 @@ class VueParticle extends CustomPainter {
   }
 
   void addTrailParticle(Canvas canvas, Particle particle, double opacity, Path chosenPath) {
-    double speedXTimesTwo = particle.speedX.abs() * 2;
+    double speedTimesTwo = particle.speedX.abs() < particle.speedY.abs()
+        ? particle.speedY.abs() * 2
+        : particle.speedX.abs() * 2;
     for (int i = 1; i < 3; i++) {
       canvas.save();
-      canvas.translate(0,speedXTimesTwo * i);
+      canvas.translate(0,speedTimesTwo * i);
       canvas.drawPath(chosenPath,
           Paint()..color = particle.color.withOpacity(opacity / (2 * i)));
       canvas.restore();
@@ -64,7 +66,9 @@ class VueParticle extends CustomPainter {
   }
 
   Path transformPath(Particle particle, Path path) {
-    double abs = particle.speedX.abs() / 4;
+    double abs = particle.speedX.abs() > particle.speedY.abs()
+        ? particle.speedX.abs() / 4
+        : particle.speedY.abs() / 4;
     if (abs < 1 && abs > -1) {
       abs = 1;
     }
