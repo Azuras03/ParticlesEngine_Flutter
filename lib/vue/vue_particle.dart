@@ -98,7 +98,7 @@ class VueParticle extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+    return _particles.isNotEmpty || _explosions.isNotEmpty;
   }
 
   void drawExplosions(Canvas canvas, Size size) {

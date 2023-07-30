@@ -15,22 +15,8 @@ import '../model/explosion.dart';
 class ParticleEngine extends StatefulWidget {
   final List<Particle> _particles = [];
   final List<Explosion> _explosions = [];
-
-  /*static final List<String> explosionPaths = ["sounds/explosion.wav",
-    "sounds/explosion2.wav",
-    "sounds/explosion3.wav",
-    "sounds/bonk.mp3",
-    "sounds/BOOM.mp3",
-    "sounds/HEHEHEHA.mp3",
-    "sounds/samsung.mp3",
-    "sounds/vineboom.mp3",
-  ];*/
   static List<String> explosionPaths = [];
-  static List<String> explosionPathsSelected = [
-    "sounds/explosion.wav",
-    "sounds/explosion2.wav",
-    "sounds/explosion3.wav",
-  ];
+  static List<String> explosionPathsSelected = [];
   static double gravity = 0.5;
   static double friction = 0.99;
   static double maxTime = 3;
@@ -52,6 +38,89 @@ class ParticleEngine extends StatefulWidget {
   static bool hapticFeedback = false;
   static List<Path> paths = [];
 
+  static void drawAllPaths() {
+    paths.clear();
+    paths.add(drawSquare());
+    paths.add(drawTriangle());
+    paths.add(drawStar());
+    paths.add(drawFlower());
+    paths.add(drawCircle());
+  }
+
+  static Path drawCircle() {
+    Path path = Path();
+    path.addOval(Rect.fromCenter(
+        center: const Offset(0, 0),
+        width: particleSize,
+        height: particleSize));
+    return path;
+  }
+
+  static Path drawSquare() {
+    Path path = Path();
+    path.addRect(Rect.fromCenter(
+        center: const Offset(0, 0),
+        width: particleSize,
+        height: particleSize));
+    return path;
+  }
+
+  static Path drawTriangle() {
+    Path path = Path();
+    var size = particleSize;
+    path.moveTo(0, -size / 2);
+    path.lineTo(size / 2, size / 2);
+    path.lineTo(-size / 2, size / 2);
+    path.close();
+    return path;
+  }
+
+  static Path drawStar() {
+    Path path = Path();
+    double rot = pi / 2 * 3;
+    double x = 0;
+    double y = 0;
+    int spikes = 5;
+    double step = pi / spikes;
+    double size = particleSize;
+    double innerRadius = size / 2;
+    double outerRadius = size;
+    path.moveTo(0, 0 - outerRadius);
+    for (int i = 0; i < spikes; i++) {
+      x = 0 + cos(rot) * outerRadius;
+      y = 0 + sin(rot) * outerRadius;
+      path.lineTo(x, y);
+      rot += step;
+
+      x = 0 + cos(rot) * innerRadius;
+      y = 0 + sin(rot) * innerRadius;
+      path.lineTo(x, y);
+      rot += step;
+    }
+    path.close();
+    return path;
+  }
+
+  static Path drawFlower() {
+    Path path = Path();
+    int numPetals = 5;
+    double size = particleSize * 1.5;
+    for (var n = 0; n < numPetals; n++) {
+      var theta1 = ((pi * 2) / numPetals) * (n + 1);
+      var theta2 = ((pi * 2) / numPetals) * (n);
+
+      var x1 = (size * sin(theta1));
+      var y1 = (size * cos(theta1));
+      var x2 = (size * sin(theta2));
+      var y2 = (size * cos(theta2));
+
+      path.moveTo(0, 0);
+      path.cubicTo(x1, y1, x2, y2, 0, 0);
+    }
+
+    path.close();
+    return path;
+  }
 
   ParticleEngine({super.key});
 
@@ -81,90 +150,7 @@ class ParticleEngineState extends State<ParticleEngine>
         animationBehavior: AnimationBehavior.preserve);
     _controller.forward();
     _vibrationSensorVerif().then((value) => vibrationSensor = value);
-    drawAllPaths();
-  }
-
-  void drawAllPaths() {
-    ParticleEngine.paths.add(drawSquare());
-    ParticleEngine.paths.add(drawTriangle());
-    ParticleEngine.paths.add(drawStar());
-    ParticleEngine.paths.add(drawFlower());
-    ParticleEngine.paths.add(drawCircle());
-  }
-
-  Path drawCircle() {
-    Path path = Path();
-    path.addOval(Rect.fromCenter(
-        center: const Offset(0, 0),
-        width: ParticleEngine.particleSize,
-        height: ParticleEngine.particleSize));
-    return path;
-  }
-
-  Path drawSquare() {
-    Path path = Path();
-    path.addRect(Rect.fromCenter(
-        center: const Offset(0, 0),
-        width: ParticleEngine.particleSize,
-        height: ParticleEngine.particleSize));
-    return path;
-  }
-
-  Path drawTriangle() {
-    Path path = Path();
-    var size = ParticleEngine.particleSize;
-    path.moveTo(0, -size / 2);
-    path.lineTo(size / 2, size / 2);
-    path.lineTo(-size / 2, size / 2);
-    path.close();
-    return path;
-  }
-
-  Path drawStar() {
-    Path path = Path();
-    double rot = pi / 2 * 3;
-    double x = 0;
-    double y = 0;
-    int spikes = 5;
-    double step = pi / spikes;
-    double size = ParticleEngine.particleSize;
-    double innerRadius = size / 2;
-    double outerRadius = size;
-    path.moveTo(0, 0 - outerRadius);
-    for (int i = 0; i < spikes; i++) {
-      x = 0 + cos(rot) * outerRadius;
-      y = 0 + sin(rot) * outerRadius;
-      path.lineTo(x, y);
-      rot += step;
-
-      x = 0 + cos(rot) * innerRadius;
-      y = 0 + sin(rot) * innerRadius;
-      path.lineTo(x, y);
-      rot += step;
-    }
-    path.close();
-    return path;
-  }
-
-  Path drawFlower() {
-    Path path = Path();
-    int numPetals = 5;
-    double size = ParticleEngine.particleSize * 1.5;
-    for (var n = 0; n < numPetals; n++) {
-      var theta1 = ((pi * 2) / numPetals) * (n + 1);
-      var theta2 = ((pi * 2) / numPetals) * (n);
-
-      var x1 = (size * sin(theta1));
-      var y1 = (size * cos(theta1));
-      var x2 = (size * sin(theta2));
-      var y2 = (size * cos(theta2));
-
-      path.moveTo(0, 0);
-      path.cubicTo(x1, y1, x2, y2, 0, 0);
-    }
-
-    path.close();
-    return path;
+    ParticleEngine.drawAllPaths();
   }
 
   Future<bool> _vibrationSensorVerif() async {
